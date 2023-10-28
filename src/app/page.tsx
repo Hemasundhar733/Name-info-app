@@ -1,95 +1,70 @@
-import Image from 'next/image'
+"use client"
+import { useState } from 'react';
+import axios from 'axios';
 import styles from './page.module.css'
 
 export default function Home() {
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [nationality, setNationality] = useState('');
+
+  const fetchInfo = async () => {
+    try {
+      // age information
+      const ageResponse = await axios.get(`https://api.agify.io?name=${name}`);
+      setAge(ageResponse.data.age);
+
+      // gender information
+      const genderResponse = await axios.get(`https://api.genderize.io?name=${name}`);
+      setGender(genderResponse.data.gender);
+
+      // nationality information
+      const nationalityResponse = await axios.get(`https://api.nationalize.io?name=${name}`);
+      // let us assume only one nationality returned
+      if (nationalityResponse.data.country.length > 0) {
+        setNationality(nationalityResponse.data.country[0].country_id);
+      } else {
+        setNationality('Data not available');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className={styles.container}>
+    <div className={styles.header}>
+      <h1>Name Information App</h1>
       </div>
+    <div className={styles.main}>
+      <div className={styles.formInput}>
+      <input className={styles.inputBox}
+        type="text"
+        placeholder="Enter a name "
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <button className={styles.button} onClick={fetchInfo}>Get Info</button>
+    <div className='fetched-data'>
+      {name &&(
+      <p>Entered Name: {name}</p>
+      )}
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      {age && ( 
+        <p>Age: {age}</p>
+      )}
+
+      {gender && (
+        <p>Gender: {gender}</p>
+      )}
+
+      {nationality && (
+        <p>Nationality: {nationality}</p>
+      )}
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    </div>
+    </div>
+    </div>
+  );
 }
